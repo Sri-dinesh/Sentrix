@@ -1,0 +1,65 @@
+[
+  {
+    "id": "T1498",
+    "name": "Network Denial of Service",
+    "tactic": "Impact",
+    "description": "Adversaries may perform Network Denial of Service (DoS) attacks to degrade or block the availability of targeted services to users, including SYN flood, UDP flood, and distributed volumetric amplification.",
+    "attack_categories": ["DoS", "DDoS", "DoS Hulk", "DoS GoldenEye", "DoS slowloris", "DoS Slowhttptest", "neptune", "smurf", "pod", "teardrop", "back", "land", "apache2", "udpstorm", "processtable", "mailbomb"]
+  },
+  {
+    "id": "T1595.001",
+    "name": "Active Scanning: Port Scanning",
+    "tactic": "Reconnaissance",
+    "description": "Adversaries may execute active port scans to discover open ports, listening services, and system connectivity states across the target network topology.",
+    "attack_categories": ["PortScan", "ipsweep", "portsweep", "nmap", "satan", "saint", "mscan"]
+  },
+  {
+    "id": "T1110",
+    "name": "Brute Force",
+    "tactic": "Credential Access",
+    "description": "Adversaries may use brute force techniques to attempt credential guessing or systematic authentication bypass on SSH, FTP, and web admin services.",
+    "attack_categories": ["SSH-Patator", "FTP-Patator", "Brute Force", "guess_passwd", "ftp_write"]
+  },
+  {
+    "id": "T1190",
+    "name": "Exploit Public-Facing Application",
+    "tactic": "Initial Access",
+    "description": "Adversaries may attempt to exploit vulnerabilities in internet-facing services or web applications, including SQL injection and Heartbleed memory disclosure.",
+    "attack_categories": ["Web Attack - SQL Injection", "Heartbleed", "httptunnel", "phf"]
+  },
+  {
+    "id": "T1059.007",
+    "name": "Command and Scripting Interpreter: JavaScript",
+    "tactic": "Execution",
+    "description": "Adversaries may execute malicious client-side JavaScript payloads or cross-site scripting (XSS) vectors targeting authenticated sessions.",
+    "attack_categories": ["Web Attack - XSS"]
+  },
+  {
+    "id": "T1584.005",
+    "name": "Compromise Infrastructure: Botnet",
+    "tactic": "Resource Development",
+    "description": "Adversaries may leverage infected nodes forming a botnet command-and-control mesh (such as Ares or Mirai) for distributed traffic generation and staging.",
+    "attack_categories": ["Bot", "Botnet", "worm"]
+  },
+  {
+    "id": "T1078",
+    "name": "Valid Accounts & Infiltration",
+    "tactic": "Defense Evasion",
+    "description": "Adversaries may exploit compromised internal credentials to infiltrate subnets and move laterally across privileged application tiers.",
+    "attack_categories": ["Infiltration", "imap", "multihop", "named", "sendmail", "snmpgetattack", "snmpguess", "xlock", "xsnoop"]
+  },
+  {
+    "id": "T1068",
+    "name": "Exploitation for Privilege Escalation",
+    "tactic": "Privilege Escalation",
+    "description": "Adversaries may exploit local kernel or service vulnerabilities to escalate privileges from standard user to root / administrator (U2R).",
+    "attack_categories": ["buffer_overflow", "loadmodule", "rootkit", "perl", "sqlattack", "xterm", "ps"]
+  },
+  {
+    "id": "T1000",
+    "name": "Unclassified Suspicious Network Activity",
+    "tactic": "Initial Access",
+    "description": "Generic fallback classification for high-confidence anomalous traffic patterns not explicitly matching defined signature taxonomies.",
+    "attack_categories": ["Anomaly", "Unknown", "Suspicious"]
+  }
+]
