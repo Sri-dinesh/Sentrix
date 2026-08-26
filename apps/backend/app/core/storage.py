@@ -58,9 +58,9 @@ def upload_model(
         except Exception as e:
             print(f"Supabase Storage upload warning: {e}. Falling back to local path.")
 
-    # Local fallback storage path
+    # Local fallback storage path inside apps/backend/ml/storage
     local_storage_dir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../../../ml/storage", bucket)
+        os.path.join(os.path.dirname(__file__), "../../ml/storage", bucket)
     )
     dest_path = os.path.join(local_storage_dir, remote_path)
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
@@ -101,7 +101,7 @@ def download_model(
         else remote_path
     )
     local_storage_path = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../../../ml/storage", bucket, clean_remote_path)
+        os.path.join(os.path.dirname(__file__), "../../ml/storage", bucket, clean_remote_path)
     )
     if os.path.exists(local_storage_path):
         if local_storage_path != os.path.abspath(local_path):
@@ -110,7 +110,7 @@ def download_model(
 
     # If the local source file itself exists (e.g. apps/backend/ml/models/autoencoder.pt)
     alt_local = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../../../ml/models", os.path.basename(clean_remote_path))
+        os.path.join(os.path.dirname(__file__), "../../ml/models", os.path.basename(clean_remote_path))
     )
     if os.path.exists(alt_local):
         if alt_local != os.path.abspath(local_path):
