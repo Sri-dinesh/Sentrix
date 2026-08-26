@@ -10,6 +10,8 @@ if backend_dir not in sys.path:
 
 from app.db.session import SessionLocal
 from app.domain.detection.service import get_detection_service, DetectionResult
+from app.domain.drift.service import get_drift_service
+from app.domain.confidence.engine import get_confidence_engine, ConfidenceScore
 from app.repositories import flow_repository
 from ingestion.capture import replay_dataset_csv
 from ingestion.flow_features import extract_flow_features
@@ -18,36 +20,60 @@ from ingestion.flow_features import extract_flow_features
 def ingest_flow(
     flow_record: Dict[str, Any],
     db: Optional[Session] = None,
-) -> DetectionResult:
+) -> Dict[str, Any]:
     """
-    Ingests and scores an individual network flow record.
-    Extracts features, runs detection service, and records flow in DB.
+    Ingests, scores, tracks drift, and computes calibrated confidence for a single network flow.
     """
     detection_svc = get_detection_service()
-    features = extract_flow_features(flow_record)
-    result = detection_svc.score_flow(features)
+    drift_svc = get_drift_service()
+    confidence_engine = get_confidence_engine()
 
-    # Persist flow if DB session provided
+    # 1. Feature extraction & detection scoring
+    features = extract_flow_features(flow_record)
+    detection_res = detection_svc.score_flow(features)
+
+    # 2. Concept drift observation
+    drift_svc.observe(detection_res.latent_vector)
+    drift_state = drift_svc.last_state
+    current_drift_score = drift_state.drift_score if drift_state else 0.0
+
+    # 3. Confidence fusion
+    confidence_res: ConfidenceScore = confidence_engine.calculate(
+        anomaly_score=detection_res.anomaly_score,
+        classifier_margin=detection_res.classifier_margin,
+        drift_score=current_drift_score,
+        is_anomalous=detection_res.is_anomalous,
+        db=db,
+    )
+
+    # 4. Persist flow in DB if session provided
     if db is not None:
         try:
             flow_repository.create_flow(db, flow_record)
         except Exception as e:
             print(f"Warning: Failed to save flow to database: {e}")
 
-    return result
+    return {
+        "detection": detection_res,
+        "confidence": confidence_res,
+    }
 
 
 def run_ingestion_stream(
-    max_flows: int = 50,
-    delay_seconds: float = 0.05,
+    max_flows: int = 60,
+    delay_seconds: float = 0.01,
+    drift_check_interval: int = 20,
     db: Optional[Session] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Runs live ingestion loop across max_flows.
+    Runs live ingestion loop with continuous drift tracking and confidence calculation.
     """
-    print(f"=== Starting Ingestion Pipeline (max_flows={max_flows}, delay={delay_seconds}s) ===")
+    print(
+        f"=== Starting Ingestion Pipeline (max_flows={max_flows}, delay={delay_seconds}s) ==="
+    )
+    drift_svc = get_drift_service()
     results = []
-    anomalies_detected = 0
+    anomalies_count = 0
 
     should_close = False
     if db is None:
@@ -58,18 +84,34 @@ def run_ingestion_stream(
             db = None
 
     try:
-        for flow in replay_dataset_csv(delay_seconds=delay_seconds, max_flows=max_flows):
-            res = ingest_flow(flow, db=db)
-            if res.is_anomalous:
-                anomalies_detected += 1
-                print(
-                    f"[ANOMALY FLAGGED] Source: {flow['src_ip']:<15} -> {flow['dst_ip']:<15} | "
-                    f"Attack: {res.attack_type:<25} | Anomaly Score: {res.anomaly_score:.5f} | "
-                    f"Margin: {res.classifier_margin:.3f} | Actual: {flow['actual_label']}"
-                )
-            results.append({"flow": flow, "result": res})
+        for idx, flow in enumerate(
+            replay_dataset_csv(delay_seconds=delay_seconds, max_flows=max_flows)
+        ):
+            output = ingest_flow(flow, db=db)
+            det = output["detection"]
+            conf = output["confidence"]
 
-        print(f"\nIngestion stream finished: {len(results)} flows processed, {anomalies_detected} anomalies detected.")
+            # Periodically evaluate drift window
+            if (idx + 1) % drift_check_interval == 0:
+                drift_state = drift_svc.check_drift(db=db)
+                print(
+                    f"  [Drift Check @ flow {idx+1}] Score: {drift_state.drift_score:.4f} | "
+                    f"Drifting: {drift_state.is_drifting} | Samples: {drift_state.sample_count}"
+                )
+
+            if det.is_anomalous:
+                anomalies_count += 1
+                print(
+                    f"[ALERT] {flow['src_ip']:<15} -> {flow['dst_ip']:<15} | "
+                    f"Attack: {det.attack_type:<20} | Confidence: {conf.score:.2f} ({conf.tier.value}) | "
+                    f"Action: {conf.recommended_action:<10} | Anomaly: {det.anomaly_score:.4f}"
+                )
+
+            results.append({"flow": flow, "output": output})
+
+        print(
+            f"\nIngestion stream completed: {len(results)} flows processed, {anomalies_count} anomalies flagged."
+        )
         return results
     finally:
         if should_close and db is not None:
@@ -91,6 +133,6 @@ if __name__ == "__main__":
     TestSession = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
     test_db = TestSession()
     try:
-        run_ingestion_stream(max_flows=25, delay_seconds=0.01, db=test_db)
+        run_ingestion_stream(max_flows=40, delay_seconds=0.005, db=test_db)
     finally:
         test_db.close()
