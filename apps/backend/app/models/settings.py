@@ -1,14 +1,13 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, Float, DateTime
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Float, DateTime, Uuid
 from app.models.base import Base
 
 
 class SettingsModel(Base):
     __tablename__ = "settings"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
     confidence_weight_anomaly = Column(Float, nullable=False, default=0.4)
     confidence_weight_classifier = Column(Float, nullable=False, default=0.4)
     confidence_weight_drift = Column(Float, nullable=False, default=0.2)

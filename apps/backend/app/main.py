@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.api.v1.webhooks import router as webhooks_router
+from app.api.v1.me import router as me_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -18,6 +20,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include API Routers
+app.include_router(webhooks_router, prefix=settings.API_V1_STR)
+app.include_router(me_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/health", tags=["Health"])

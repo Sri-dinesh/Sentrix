@@ -6,8 +6,8 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     CheckConstraint,
+    Uuid,
 )
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.models.base import Base
 
@@ -15,9 +15,9 @@ from app.models.base import Base
 class Incident(Base):
     __tablename__ = "incidents"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
     detection_id = Column(
-        UUID(as_uuid=True),
+        Uuid,
         ForeignKey("detections.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
@@ -39,7 +39,7 @@ class Incident(Base):
         nullable=True,
     )
     resolved_by = Column(
-        UUID(as_uuid=True),
+        Uuid,
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
     )

@@ -1,14 +1,14 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Integer, Float, DateTime, Index
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import Column, String, Integer, Float, DateTime, Index, Uuid, JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from app.models.base import Base
 
 
 class Flow(Base):
     __tablename__ = "flows"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
     captured_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
@@ -23,7 +23,11 @@ class Flow(Base):
     packet_count = Column(Integer, nullable=False, default=1)
     byte_count = Column(Integer, nullable=False, default=0)
     duration = Column(Float, nullable=False, default=0.0)
-    raw_features = Column(JSONB, nullable=False, default=dict)
+    raw_features = Column(
+        JSONB().with_variant(JSON(), "sqlite"),
+        nullable=False,
+        default=dict,
+    )
 
     __table_args__ = (
         Index("ix_flows_src_ip_captured_at", "src_ip", "captured_at"),

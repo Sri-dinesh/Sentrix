@@ -8,8 +8,10 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     CheckConstraint,
+    Uuid,
+    JSON,
 )
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from app.models.base import Base
 
@@ -17,9 +19,9 @@ from app.models.base import Base
 class Detection(Base):
     __tablename__ = "detections"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
     flow_id = Column(
-        UUID(as_uuid=True),
+        Uuid,
         ForeignKey("flows.id", ondelete="CASCADE"),
         index=True,
         nullable=False,
@@ -30,7 +32,11 @@ class Detection(Base):
     classifier_margin = Column(Float, nullable=True)
     drift_score = Column(Float, nullable=True)
     confidence_score = Column(Float, index=True, nullable=False)
-    confidence_breakdown = Column(JSONB, nullable=False, default=dict)
+    confidence_breakdown = Column(
+        JSONB().with_variant(JSON(), "sqlite"),
+        nullable=False,
+        default=dict,
+    )
     detected_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
