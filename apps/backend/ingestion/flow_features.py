@@ -51,7 +51,7 @@ def extract_flow_features(flow_dict: Dict[str, Any]) -> np.ndarray:
     feature_names = get_feature_columns()
     vector = np.zeros(len(feature_names), dtype=np.float32)
 
-    raw_features = flow_dict.get("raw_features", flow_dict)
+    raw_features = flow_dict.get("raw_features") or flow_dict
 
     for idx, feat_name in enumerate(feature_names):
         val = raw_features.get(feat_name)
