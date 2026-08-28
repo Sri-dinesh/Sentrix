@@ -11,7 +11,7 @@ from app.domain.containment.service import get_containment_service
 ACTIVE_LEARNING_POOL_FILE = os.path.abspath(
     os.path.join(
         os.path.dirname(__file__),
-        "../../../../ml/datasets/active_learning_pool.json",
+        "../../../ml/datasets/active_learning_pool.json",
     )
 )
 
