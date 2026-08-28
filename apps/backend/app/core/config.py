@@ -34,6 +34,8 @@ class Settings(BaseSettings):
 
     # Ollama & SDN
     OLLAMA_HOST: str = "http://localhost:11434"
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    OLLAMA_MODEL: str = "mistral:latest"
     RYU_API_URL: str = "http://localhost:8080"
 
     model_config = SettingsConfigDict(
