@@ -41,9 +41,9 @@ class IptablesDriver:
 
     def unblock_ip(self, src_ip: str) -> bool:
         """
-        Removes DROP rule for src_ip from host firewall.
+        Removes DROP or rate-limiting rule for src_ip from host firewall.
         """
-        if src_ip not in self._blocked_ips:
+        if src_ip not in self._blocked_ips and src_ip not in self._rate_limited_ips:
             return True
 
         if not self.simulate and os.path.exists(self._iptables_bin):
@@ -54,6 +54,7 @@ class IptablesDriver:
                 print(f"Warning: iptables unblock command failed: {e}")
 
         self._blocked_ips.discard(src_ip)
+        self._rate_limited_ips.discard(src_ip)
         return True
 
     def rate_limit_ip(self, src_ip: str, rate: str = "25/sec") -> bool:
@@ -99,21 +100,21 @@ class IptablesDriver:
 
     def is_ip_blocked(self, src_ip: str) -> bool:
         """
-        Checks whether the specified IP is actively contained.
+        Checks whether the specified IP is actively contained (blocked or rate-limited).
         """
-        return src_ip in self._blocked_ips
+        return src_ip in self._blocked_ips or src_ip in self._rate_limited_ips
 
     def list_active_blocks(self) -> List[str]:
         """
-        Lists all currently contained IP addresses.
+        Lists all currently contained IP addresses (blocked and rate-limited).
         """
-        return sorted(list(self._blocked_ips))
+        return sorted(list(self._blocked_ips.union(self._rate_limited_ips)))
 
     def clear(self):
         """
         Lifts all active containment blocks.
         """
-        for ip in list(self._blocked_ips):
+        for ip in list(self._blocked_ips.union(self._rate_limited_ips)):
             self.unblock_ip(ip)
 
 
