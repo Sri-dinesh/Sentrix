@@ -32,7 +32,7 @@ services:
       - ./env/.env
     environment:
       - REDIS_URL=redis://redis:6379/0
-      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_BASE_URL=http://ollama:11434
     ports:
       - "8000:8000"
     volumes:
@@ -52,12 +52,12 @@ services:
       dockerfile: Dockerfile
     container_name: sentrix-celery-worker
     restart: unless-stopped
-    command: ["celery", "-A", "app.workers.celery_app", "worker", "--loglevel=info"]
+    command: ["celery", "-A", "app.worker.celery_app", "worker", "--loglevel=info"]
     env_file:
       - ./env/.env
     environment:
       - REDIS_URL=redis://redis:6379/0
-      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_BASE_URL=http://ollama:11434
     volumes:
       - ../apps/backend:/app
     depends_on:
