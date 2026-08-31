@@ -1,0 +1,18 @@
+[
+  {
+    "staged_at": "2026-08-31T06:42:36.664520+00:00",
+    "verified_label": "BENIGN",
+    "raw_features": {
+      "Destination Port": 80,
+      "Flow Duration": 450000,
+      "Total Fwd Packets": 450,
+      "Total Backward Packets": 400,
+      "Total Length of Fwd Packets": 64000,
+      "Total Length of Bwd Packets": 60000,
+      "Flow Bytes/s": 275555.5,
+      "Flow Packets/s": 1888.8,
+      "SYN Flag Count": 1,
+      "ACK Flag Count": 1
+    }
+  }
+]
