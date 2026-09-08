@@ -168,7 +168,7 @@ class ReplayBuffer:
             hist_y = np.array(["BENIGN"] * 100, dtype=object)
 
         if benign_only:
-            benign_mask = np.char.upper(hist_y.astype(str)) == "BENIGN"
+            benign_mask = np.array([str(val).strip().upper() == "BENIGN" for val in hist_y], dtype=bool)
             if np.any(benign_mask):
                 hist_X = hist_X[benign_mask]
                 hist_y = hist_y[benign_mask]

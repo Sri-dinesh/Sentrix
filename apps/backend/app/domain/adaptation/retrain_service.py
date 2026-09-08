@@ -142,15 +142,27 @@ class RetrainService:
 
         X_train_scaled = transform_features(X_train, scaler)
 
-        # Datasets and optimizer
         train_dataset = TensorDataset(torch.from_numpy(X_train_scaled).float())
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
         criterion = nn.MSELoss()
         optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
 
-        # 4. Fine-tuning loop
+        # Evaluate pre-retraining baseline on held-out validation benchmark
+        benign_val_mask = np.array([str(val).strip().upper() == "BENIGN" for val in y_val], dtype=bool)
+        X_val_benign = X_val_scaled[benign_val_mask]
+        model.eval()
+        with torch.no_grad():
+            init_val_tensor = torch.from_numpy(X_val_benign).float()
+            init_recon = model(init_val_tensor)
+            baseline_val_loss = float(criterion(init_recon, init_val_tensor).item())
+
+        # 4. Fine-tuning loop (freeze BatchNorm running statistics to prevent batch drift during fine-tuning)
         model.train()
+        for m in model.modules():
+            if isinstance(m, nn.BatchNorm1d):
+                m.eval()
+
         for epoch in range(1, epochs + 1):
             for (batch_x,) in train_loader:
                 optimizer.zero_grad()
@@ -159,8 +171,8 @@ class RetrainService:
                 loss.backward()
                 optimizer.step()
 
-        # 5. Evaluate on fixed held-out validation set (benign records)
-        benign_val_mask = np.char.upper(y_val.astype(str)) == "BENIGN"
+        # 5. Evaluate candidate model on fixed held-out validation set
+        benign_val_mask = np.array([str(val).strip().upper() == "BENIGN" for val in y_val], dtype=bool)
         X_val_benign = X_val_scaled[benign_val_mask]
 
         model.eval()
@@ -272,6 +284,15 @@ class RetrainService:
         if np.any(valid_mask):
             X_train = X_train[valid_mask]
             y_train = y_train[valid_mask]
+
+        # Ensure all known classes are present in training batch so XGBoost multi:softprob has full label range
+        for cls_name in known_classes:
+            if cls_name not in y_train:
+                if self.replay_buffer._historical_y is not None:
+                    match_idx = np.where(self.replay_buffer._historical_y == cls_name)[0]
+                    if len(match_idx) > 0:
+                        X_train = np.vstack([X_train, self.replay_buffer._historical_X[match_idx[:2]]])
+                        y_train = np.concatenate([y_train, self.replay_buffer._historical_y[match_idx[:2]]])
 
         X_train_scaled = transform_features(X_train, scaler)
         y_train_encoded = label_encoder.transform(y_train)
