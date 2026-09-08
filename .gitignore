@@ -64,6 +64,7 @@ datasets/CICIDS2017/*
 !datasets/CICIDS2017/.gitkeep
 datasets/NSL-KDD/*
 !datasets/NSL-KDD/.gitkeep
+apps/ml/
 
 # OS / IDE
 .DS_Store
