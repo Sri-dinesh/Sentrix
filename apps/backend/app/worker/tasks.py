@@ -55,3 +55,42 @@ def periodic_drift_scan_task() -> dict:
         return {"status": "error", "error": str(e)}
     finally:
         db.close()
+
+
+@celery_app.task(name="tasks.run_adaptation_cycle")
+def run_adaptation_cycle_task(
+    trigger: str = "manual",
+    requested_by: str = "admin",
+    safety_margin: float = 0.02,
+) -> dict:
+    """
+    Celery task that executes continuous model adaptation and fine-tuning with safety gates.
+    """
+    from app.domain.adaptation.retrain_service import get_retrain_service
+
+    print(f"[Celery Worker] Starting adaptation retraining cycle (trigger: {trigger}, requested_by: {requested_by})")
+    db = SessionLocal()
+    try:
+        service = get_retrain_service()
+        results = service.run_adaptation_cycle(
+            db=db,
+            trigger=trigger,
+            safety_margin=safety_margin,
+        )
+        print(f"[Celery Worker] Retraining cycle complete. Promoted any: {results.get('any_promoted')}")
+        return {
+            "status": "success",
+            "trigger": trigger,
+            "requested_by": requested_by,
+            "results": results,
+        }
+    except Exception as e:
+        print(f"[Celery Worker] Error during adaptation cycle: {e}")
+        return {
+            "status": "error",
+            "error": str(e),
+            "trigger": trigger,
+            "requested_by": requested_by,
+        }
+    finally:
+        db.close()

@@ -67,13 +67,22 @@ class DriftService:
         )
         self.last_state = state
 
-        # If drifting and DB session provided, log drift event
+        # If drifting and DB session provided, log drift event and queue adaptation
         if is_drifting and db is not None:
+            triggered_retrain = False
             try:
+                # Attempt to enqueue background adaptation task via Celery
+                from app.worker.tasks import run_adaptation_cycle_task
+                try:
+                    run_adaptation_cycle_task.delay(trigger="concept_drift_detected", requested_by="drift_monitor")
+                    triggered_retrain = True
+                except Exception as celery_err:
+                    print(f"Notice: Celery queue unavailable for automated drift adaptation: {celery_err}")
+
                 drift_repository.record_drift_event(
                     db=db,
                     drift_score=effective_score,
-                    triggered_retrain=False,
+                    triggered_retrain=triggered_retrain,
                 )
             except Exception as e:
                 print(f"Warning: Failed to record drift event: {e}")
