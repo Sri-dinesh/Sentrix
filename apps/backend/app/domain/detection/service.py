@@ -60,10 +60,9 @@ class DetectionService:
             pred_attack, margin = self.classifier.predict(raw_features)
             attack_type = pred_attack
             classifier_margin = margin
-            # If classifier also flags as non-benign
+            # If classifier flags as benign despite autoencoder anomaly, suppress attack confidence
             if pred_attack == "BENIGN":
-                # Borderline anomaly with benign signature
-                classifier_margin = max(0.1, margin)
+                classifier_margin = 0.0
 
         return DetectionResult(
             anomaly_score=anomaly_score,

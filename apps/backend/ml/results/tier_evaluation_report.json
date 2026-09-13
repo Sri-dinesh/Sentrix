@@ -1,0 +1,193 @@
+{
+  "summary": {
+    "n_samples": 5000,
+    "total_benign": 2996,
+    "total_attacks": 2004,
+    "safety_claim_verified": true
+  },
+  "baseline_binary_anomaly_detection": {
+    "precision": 0.9415741187831965,
+    "recall": 0.9730538922155688,
+    "f1_score": 0.9570552147239263,
+    "false_positive_rate": 0.040387182910547395,
+    "false_negative_rate": 0.02694610778443114,
+    "confusion_matrix": {
+      "tp": 1950,
+      "fp": 121,
+      "tn": 2875,
+      "fn": 54
+    }
+  },
+  "default_multi_signal_tiering": {
+    "config": {
+      "w_anomaly": 0.4,
+      "w_clf": 0.4,
+      "w_drift": 0.2,
+      "tier_high_threshold": 0.85,
+      "tier_medium_threshold": 0.5
+    },
+    "tier_counts": {
+      "HIGH": 840,
+      "MEDIUM": 1110,
+      "LOW": 3050
+    },
+    "high_tier": {
+      "true_positives": 840,
+      "false_positives": 0,
+      "precision": 1.0,
+      "recall": 0.41916167664670656,
+      "false_positive_rate": 0.0
+    },
+    "medium_tier": {
+      "true_positives": 1110,
+      "false_positives": 0,
+      "precision": 1.0,
+      "recall": 0.5538922155688623
+    },
+    "low_tier": {
+      "true_negatives": 2996,
+      "false_negatives": 54,
+      "false_negative_rate": 0.02694610778443114,
+      "benign_coverage": 1.0
+    },
+    "combined_defense": {
+      "total_attacks_intercepted": 1950,
+      "overall_recall": 0.9730538922155688,
+      "overall_precision": 1.0
+    }
+  },
+  "pareto_optimal_operating_point": {
+    "w_anomaly": 0.6,
+    "w_clf": 0.2,
+    "tier_high_threshold": 0.75,
+    "tier_medium_threshold": 0.45,
+    "high_fpr": 0.0,
+    "high_precision": 1.0,
+    "high_recall": 0.969061876247505,
+    "high_tp": 1942,
+    "high_fp": 0,
+    "combined_recall": 0.9730538922155688
+  },
+  "top_parameter_sweep_points": [
+    {
+      "w_anomaly": 0.6,
+      "w_clf": 0.2,
+      "tier_high_threshold": 0.75,
+      "tier_medium_threshold": 0.45,
+      "high_fpr": 0.0,
+      "high_precision": 1.0,
+      "high_recall": 0.969061876247505,
+      "high_tp": 1942,
+      "high_fp": 0,
+      "combined_recall": 0.9730538922155688
+    },
+    {
+      "w_anomaly": 0.6,
+      "w_clf": 0.2,
+      "tier_high_threshold": 0.75,
+      "tier_medium_threshold": 0.5,
+      "high_fpr": 0.0,
+      "high_precision": 1.0,
+      "high_recall": 0.969061876247505,
+      "high_tp": 1942,
+      "high_fp": 0,
+      "combined_recall": 0.9730538922155688
+    },
+    {
+      "w_anomaly": 0.6,
+      "w_clf": 0.2,
+      "tier_high_threshold": 0.75,
+      "tier_medium_threshold": 0.55,
+      "high_fpr": 0.0,
+      "high_precision": 1.0,
+      "high_recall": 0.969061876247505,
+      "high_tp": 1942,
+      "high_fp": 0,
+      "combined_recall": 0.9730538922155688
+    },
+    {
+      "w_anomaly": 0.6,
+      "w_clf": 0.2,
+      "tier_high_threshold": 0.8,
+      "tier_medium_threshold": 0.45,
+      "high_fpr": 0.0,
+      "high_precision": 1.0,
+      "high_recall": 0.8218562874251497,
+      "high_tp": 1647,
+      "high_fp": 0,
+      "combined_recall": 0.9730538922155688
+    },
+    {
+      "w_anomaly": 0.6,
+      "w_clf": 0.2,
+      "tier_high_threshold": 0.8,
+      "tier_medium_threshold": 0.5,
+      "high_fpr": 0.0,
+      "high_precision": 1.0,
+      "high_recall": 0.8218562874251497,
+      "high_tp": 1647,
+      "high_fp": 0,
+      "combined_recall": 0.9730538922155688
+    },
+    {
+      "w_anomaly": 0.6,
+      "w_clf": 0.2,
+      "tier_high_threshold": 0.8,
+      "tier_medium_threshold": 0.55,
+      "high_fpr": 0.0,
+      "high_precision": 1.0,
+      "high_recall": 0.8218562874251497,
+      "high_tp": 1647,
+      "high_fp": 0,
+      "combined_recall": 0.9730538922155688
+    },
+    {
+      "w_anomaly": 0.5,
+      "w_clf": 0.3,
+      "tier_high_threshold": 0.75,
+      "tier_medium_threshold": 0.45,
+      "high_fpr": 0.0,
+      "high_precision": 1.0,
+      "high_recall": 0.6976047904191617,
+      "high_tp": 1398,
+      "high_fp": 0,
+      "combined_recall": 0.9730538922155688
+    },
+    {
+      "w_anomaly": 0.5,
+      "w_clf": 0.3,
+      "tier_high_threshold": 0.75,
+      "tier_medium_threshold": 0.5,
+      "high_fpr": 0.0,
+      "high_precision": 1.0,
+      "high_recall": 0.6976047904191617,
+      "high_tp": 1398,
+      "high_fp": 0,
+      "combined_recall": 0.9730538922155688
+    },
+    {
+      "w_anomaly": 0.5,
+      "w_clf": 0.3,
+      "tier_high_threshold": 0.75,
+      "tier_medium_threshold": 0.55,
+      "high_fpr": 0.0,
+      "high_precision": 1.0,
+      "high_recall": 0.6976047904191617,
+      "high_tp": 1398,
+      "high_fp": 0,
+      "combined_recall": 0.9730538922155688
+    },
+    {
+      "w_anomaly": 0.6,
+      "w_clf": 0.2,
+      "tier_high_threshold": 0.85,
+      "tier_medium_threshold": 0.45,
+      "high_fpr": 0.0,
+      "high_precision": 1.0,
+      "high_recall": 0.6172654690618763,
+      "high_tp": 1237,
+      "high_fp": 0,
+      "combined_recall": 0.9730538922155688
+    }
+  ]
+}
