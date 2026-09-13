@@ -1,7 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.v1 import me, webhooks, flows, incidents, settings as settings_api, models, drift, containment, stream
+from app.api.v1 import (
+    me,
+    webhooks,
+    flows,
+    incidents,
+    settings as settings_api,
+    models,
+    drift,
+    containment,
+    stream,
+    metrics,
+)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -40,3 +51,4 @@ app.include_router(models.router, prefix=settings.API_V1_STR)
 app.include_router(drift.router, prefix=settings.API_V1_STR)
 app.include_router(containment.router, prefix=settings.API_V1_STR)
 app.include_router(stream.router, prefix=settings.API_V1_STR)
+app.include_router(metrics.router, prefix=settings.API_V1_STR)
