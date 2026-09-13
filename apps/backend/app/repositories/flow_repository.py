@@ -10,8 +10,19 @@ def create_flow(db: Session, flow_dict: Dict[str, Any]) -> Flow:
     """
     Persists a network flow record in the database.
     """
+    raw_id = flow_dict.get("id")
+    if isinstance(raw_id, str):
+        try:
+            flow_id = uuid.UUID(raw_id)
+        except ValueError:
+            flow_id = uuid.uuid4()
+    elif isinstance(raw_id, uuid.UUID):
+        flow_id = raw_id
+    else:
+        flow_id = uuid.uuid4()
+
     flow = Flow(
-        id=flow_dict.get("id", uuid.uuid4()),
+        id=flow_id,
         captured_at=flow_dict.get("captured_at", datetime.now()),
         src_ip=flow_dict["src_ip"],
         dst_ip=flow_dict["dst_ip"],

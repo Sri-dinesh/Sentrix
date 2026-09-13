@@ -45,7 +45,10 @@ def ingest_flow(
     # 2. Concept drift observation
     drift_svc.observe(detection_res.latent_vector)
     drift_state = drift_svc.last_state
-    current_drift_score = drift_state.drift_score if drift_state else 0.0
+    if "drift_score" in flow_record and flow_record["drift_score"] is not None:
+        current_drift_score = float(flow_record["drift_score"])
+    else:
+        current_drift_score = drift_state.drift_score if drift_state else 0.0
 
     # 3. Confidence fusion
     confidence_res: ConfidenceScore = confidence_engine.calculate(

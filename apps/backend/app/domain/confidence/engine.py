@@ -81,9 +81,13 @@ class ConfidenceEngine:
         eff_margin = float(classifier_margin) if classifier_margin is not None else 0.5
         eff_drift = float(drift_score) if drift_score is not None else 0.0
 
-        # Component contributions
-        anomaly_contrib = w_anomaly * norm_anomaly
-        classifier_contrib = w_clf * eff_margin
+        # Component contributions (normalized so positive weights sum to 1.0)
+        pos_weight = w_anomaly + w_clf
+        norm_w_anomaly = (w_anomaly / pos_weight) if pos_weight > 0 else 0.5
+        norm_w_clf = (w_clf / pos_weight) if pos_weight > 0 else 0.5
+
+        anomaly_contrib = norm_w_anomaly * norm_anomaly
+        classifier_contrib = norm_w_clf * eff_margin
         drift_penalty = w_drift * eff_drift
 
         # Multi-signal fusion
